@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>找出你的宠物小精灵</title>
+		<script src="js/animation2.js"></script>
+		<style type="text/css">
+			h2,p{
+				margin: 0;
+				padding: 0;
+			}
+			body{
+				margin: 0;
+				background-color: black;
+				overflow: hidden;
+				background: url(img/bodybg.jpeg) no-repeat;
+			}
+			#wrap{
+				width: 700px;
+				height: 630px;
+				background: -webkit-linear-gradient(left top, rgba(84,81,206,0.8), rgba(53,177,235,0.8));
+				margin: 30px 100px;
+				position: relative;
+				border-radius: 20px 0 20px 20px;
+				
+				-webkit-perspective: 800px;
+				-webkit-transform-style: preserve-3d;
+				-webkit-transform-origin: center  center 0px;
+				
+				opacity: 0;
+			}
+			#wrap ul{
+				width: 700px;
+				height: 630px;
+				list-style: none;
+				position: relative;
+				-webkit-perspective: 800px;
+			}
+			#wrap ul li{
+				position: absolute;
+				width: 112px;
+				height: 126px;
+				border-radius: 10px;
+				background: rgba(255,255,255,0.7);
+				-webkit-box-shadow:5px 6px 13px #00fff0;
+				/*background: rgba(255,255,255,0.7);*/
+				-webkit-transform-origin: center  center 0px;
+				
+				background: -webkit-linear-gradient(left top,rgba(255,255,255,0) 0,rgba(255,255,255,0) 40%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0) 60%) no-repeat -70px -70px,rgba(255,255,255,0.7);
+				transition: all 2s;
+				
+			}
+			#wrap ul li:hover{
+				background-position: 70px 70px,0 0;
+			}
+			#wrap ul li img{
+				width: 100%;
+				height: 100%;
+				opacity: 1;
+			}
+			#wrap .righttop{
+				width:280px;
+				height: 320px;
+				border-radius: 0 20px 20px 0;
+				position: absolute;
+				right: -280px;
+				top: 0;
+				z-index: 999;
+				background: -webkit-linear-gradient(bottom, #4581dc, #3e94e2);
+				-webkit-box-shadow:10px 10px 50px #5451ce;
+			}
+			.btn{
+				width: 140px;
+				height: 36px;
+				background: rgba(255,255,255,0.7);
+				border-radius: 10px;
+				margin: 20px auto;
+				-moz-box-shadow:2px 2px 13px #00fff0; 
+				-webkit-box-shadow:2px 2px 13px #00fff0;
+				box-shadow:2px 2px 13px #00fff0;
+				text-align: center;
+				font: 20px/36px arial;
+				cursor: pointer;
+			}
+			.fanpai{
+				width: 112px;
+				height: 126px;
+				position: absolute;
+				top: 90px;
+				left: 84px;
+			}
+			.fanpai img{
+				width: 112px;
+				height: 126px;
+			}
+			.tips{
+				width: 100%;
+				height: 20px;
+				position: absolute;
+				bottom: 64px;
+				left: 0;
+				text-align: center;
+				color: white;
+			}
+			.notice{
+				width:40%;
+				height: 60%;
+				background-color: rgba(255,255,255,0.6);
+				border-radius: 20px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				display: none;
+				opacity:1;
+				background: url(img/shuoming1.png) no-repeat;
+			}
+			#shadow{
+				width: 1500px;
+				height: 938px;
+				position: absolute;
+				top: 0;
+				left: 0;
+				opacity:1;
+			}
+			.closebtn{
+				width: 30%;
+				height: 15%;
+				cursor: pointer;
+				position: absolute;
+				bottom: 10px;
+				left: 200px;
+			}
+			.bar{
+				width: 90%;
+				height: 1%;
+				border-radius: 50%;
+				background-color: #71d1fc;
+				position: absolute;
+				left: 5%;
+				top: -0.5%;
+			}
+			.point{
+				position: absolute;
+				right: -8px;
+				top: -4px;
+			}
+			.time_remainimg{
+				height: 10px;
+				position: absolute;
+				right: -80px;
+				top: -20px;
+				text-align: center;
+				z-index: 9999;
+			}
+			.getscores{
+				width: 100%;
+				height: 20px;
+				text-align: center;
+				color: white;
+				position: absolute;
+				left: 0;
+				bottom: 20px;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload=function(){
+				var oWrap=document.querySelector("#wrap");
+				var oShadow=document.querySelector("#shadow");
+				var aLi=document.querySelectorAll("li");
+				var oBtn=document.querySelector(".btn");
+				var oUl=document.querySelector(".ul1");
+				var oFanpai=document.querySelector(".fanpai");
+				var oTips=document.querySelector(".tips");
+				var oScore=document.querySelector(".score");
+				var oNotice=document.querySelector(".notice");
+				var oClose=document.querySelector(".closebtn");
+				var oBar=document.querySelector(".bar");
+				var oGetscores=document.querySelector(".getscores");
+				var pos=[];//用于存储每个li的初始位置
+				var timer;//定时器
+				var onOff=true;//记录开始按钮是否开启
+				var onOff1=true;//记录是否已经翻牌
+				var score=0;//记录分数
+				var T=8000;//T表示最久那次的时间
+				var T1=T;
+				var num=0;//记录尺寸的变化
+				var guanshu=0;
+				
+				//初始化公告notice的位置，让其在屏幕外面
+				oNotice.style.display='block';
+				oNotice.style.top=-oNotice.offsetHeight+'px';
+				oNotice.style.left=document.documentElement.clientWidth*0.5+'px';
+					
+				
+				//初始化遮罩背景
+				oShadow.style.height=document.documentElement.clientHeight*1.5+'px';
+				oShadow.style.width=document.documentElement.clientWidth*1.5+'px';
+				oShadow.style.left=-document.documentElement.clientWidth*0.25+'px';
+				oShadow.style.top=-document.documentElement.clientHeight*0.25+'px';
+				//让遮罩背景变小
+				animation(oShadow,{
+					width:document.documentElement.clientWidth,
+					height:document.documentElement.clientHeight,
+					left:0,
+					top:0
+				},2000,'easeOut',function(){
+					
+					
+					setTimeout(function(){
+						animation(oNotice,{
+							top:(document.documentElement.clientHeight-oNotice.offsetHeight)/2
+						},1000,'elasticOut');
+					},200)
+				});
+				
+				//屏幕宽高变化的时候，遮罩背景依然布满
+				window.onresize=function(){
+					oShadow.style.width=document.documentElement.clientWidth+'px';
+					oShadow.style.height=document.documentElement.clientHeight+'px';
+					oNotice.style.left=document.documentElement.clientWidth*0.5+'px';
+					oNotice.style.top=(document.documentElement.clientHeight-oNotice.offsetHeight)/2+'px';
+				}
+				
+				//关闭规则，显示游戏界面
+				oClose.onclick=function(){
+					oShadow.style.display='none';
+					oNotice.style.display='none';
+					animation(oWrap,{
+						opacity:1
+					},1000,'linear');
+				}
+				
+				
+				
+				//初始化每个li的位置，已经存储li的位置
+				aLi.forEach(function(ele,index){
+					//布局每个li，成九宫格状
+					ele.style.top=56+parseInt(index/3)*202+'px';
+					ele.style.left=84+parseInt(index%3)*202+'px';
+					//存储每个li的left和top
+					pos.push({left:ele.offsetLeft,top:ele.offsetTop});
+				})
+				
+				//执行函数，递归
+				refindfn(6);
+				function refindfn(S){//S表示关数
+					//点击洗牌，随机发牌到原先的pos位置
+					oBtn.onclick=function(){console.log('aaa');
+						if(onOff){
+							onOff=false;
+							onOff1=true;
+							guanshu++;
+							oBar.style.display='block';
+							oBar.style.width=oWrap.offsetWidth*0.9+'px';
+							oBar.children[1].innerHTML='第'+guanshu+'关仅剩<br/>'+(T/1000).toFixed(2)+'s';
+							oBtn.innerHTML='游戏进行中';
+							oFanpai.children[0].src='img/fm.png';
+							oTips.innerHTML='正在洗牌';
+							var aLi=document.querySelectorAll("li");//点击重新获取一遍aLi，因为洗牌的时候要全部牌都放到中心位置，如果不重新获取，是另外种情况，可以删除后尝试下效果
+							aLi.forEach(function(ele){
+								//所有牌合体
+								//所有牌的left到中间的等于中间的li的left
+								ele.style.left=aLi[parseInt(aLi.length/2)].offsetLeft+'px';
+								//所有牌的left到中间的等于中间的li的top
+								ele.style.top=aLi[parseInt(aLi.length/2)].offsetTop+'px';
+								//所有牌绕Y轴转动180度，即变成反面，在反转的过程中，我的背景颜色要变成#00ffa2，并且图片的透明度要变为0，这样，翻转过过来才不会看到图片
+								overturnfn(ele,180,'#00ffa2');
+							})
+							//经过T秒以后，将背面朝上的牌打乱顺序，将牌发到原来的位置
+							timer=setTimeout(function(){
+								//打乱顺序
+								Random_sortfn();
+								//因为li已经打乱了，所以我要重新获取下li，如果不打乱，还是原先的li，回到原来li的位置的图片跟之前的一模一样
+								var aLi=document.querySelectorAll("li");
+								//让所有li回到原来位置，然后，将所有的牌翻开，正面朝上，让用户看
+								aLi.forEach(function(ele1,index){
+									animation(ele1,{
+										left:pos[index].left,
+										top:pos[index].top
+									},1000,'linear',function(){
+										//绕Y轴回到0度，并且同时改变背景色和透明度，完了之后清除定时器
+										overturnfn(ele1,0,'rgba(255,255,255,0.7)');
+										animation(ele1.children[0],{
+											opacity:1
+										},1000,'linear',function(){
+											clearTimeout(timer);
+											
+											//倒计时模块
+											var U=T;
+											var timer1=setInterval(function(){
+												oBar.style.width=U/T*oWrap.offsetWidth*0.9+'px';
+												oBar.children[1].innerHTML='第'+guanshu+'关仅剩<br/>'+(U/1000).toFixed(2)+'s';
+												U-=20;
+												if (U<0) {
+													clearInterval(timer1);
+													oBar.style.display='none';
+												}
+											},20)
+											
+											//把显示的牌，让用户看T秒钟，翻过去
+											timer=setTimeout(function(){
+												var aLi=document.querySelectorAll("li");
+												aLi.forEach(function(ele2){
+													overturnfn(ele2,180,'#00ffa2');
+												})
+												
+												//在翻过去的牌中随机选取一张，获取他的src，并且让右侧的牌显示为这张随机牌，让用户去选这张
+												var n=Math.round(Math.random()*8);//将牌的序号存起来
+												oFanpai.children[0].src='img/'+n+'.png';
+												oTips.innerHTML='请在左侧点击选出与上牌相同的牌';
+												
+												
+												//点击翻牌
+												aLi.forEach(function(ele4,index){
+													ele4.onclick=function(){
+														if(onOff1){
+															onOff1=false;
+															overturnfn(ele4,0,'rgba(255,255,255,0.7)');
+															animation(ele4.children[0],{
+																opacity:1
+															},1000,'linear',function(){
+																
+																//判断是否找对
+																if(ele4.children[0].getAttribute('src')=='img/'+n+'.png'){
+																	score++;
+																	oGetscores.innerHTML='本轮得分：+1分，总得分：'+score+'分';
+																}else{
+																	score--;
+																	oGetscores.innerHTML='本轮得分：-1分，总得分：'+score+'分';
+																}
+																
+																
+																//如果错误
+																//当前这张牌翻回去
+																overturnfn(ele4,180,'#00ffa2');
+																
+																//正确的牌翻出来
+																var aLi=document.querySelectorAll("li");
+																aLi.forEach(function(ele5){
+																	if(ele5.children[0].getAttribute('src')=='img/'+n+'.png'){
+																		overturnfn(ele5,0,'rgba(255,255,255,0.7)');
+																		animation(ele5.children[0],{
+																			opacity:1
+																		},1000,'linear',function(){
+																			//设置时间间隔
+																			T-=(T1-2000)/(S-1);
+																			onOff=true;
+																			oBtn.innerHTML='点击开始下轮';
+																			if (T>=2000) {
+																				refindfn(S);
+																			}else{
+																				oBtn.onclick=null;
+																				oBtn.innerHTML='OVER!';
+																				alert('游戏结束，恭喜您，您总计获得'+score+'分');
+																				setTimeout(function(){
+																					oShadow.style.display='block';
+																					setTimeout(function(){
+																						alert('如需重玩，请刷新本页！')
+																					},500);
+																					
+																				},500);
+																			}
+																		});
+																	}
+																})
+															});
+														}
+														
+													}
+												})
+											},T);
+										})
+									});
+								})
+							},1800);
+						}
+					}
+				}
+				
+				//乱序
+				function Random_sortfn(){
+					var arr=Array.from(aLi);
+					arr.sort(function(){
+						return Math.random()-0.5;
+					})
+					for (var i=0;i<arr.length;i++) {
+						oUl.appendChild(arr[i]);
+					}
+				}
+				
+				//翻转效果封装
+				function overturnfn(obj,Degs,color){
+					obj.style.webkitTransform='rotateY('+Degs+'deg)';
+					obj.style.background=color;
+					if (getComputedStyle(obj.children[0])['opacity']==1) {
+						obj.children[0].style.opacity=0;
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<ul class="ul1">
+				<li><img src="img/0.png"/></li>
+				<li><img src="img/1.png"/></li>
+				<li><img src="img/2.png"/></li>
+				<li><img src="img/3.png"/></li>
+				<li><img src="img/4.png"/></li>
+				<li><img src="img/5.png"/></li>
+				<li><img src="img/6.png"/></li>
+				<li><img src="img/7.png"/></li>
+				<li><img src="img/8.png"/></li>
+			</ul>
+			<div class="righttop">
+				<div class="btn">开始</div>
+				<div class="fanpai"><img src="img/fm.png"/></div>
+				<div class="tips">点击开始洗牌</div>
+				<div class="getscores">总得分：0分</div>
+			</div>
+			<div class="bar">
+				<img class="point" src="img/point.png"/>
+				<span class="time_remainimg">第1关仅剩<br/>8.00s</span>
+			</div>
+		</div>
+		<img id="shadow" src="img/sqbb.jpeg"/>
+		<div class="notice">
+			<img class="closebtn" src="img/btn1.png"/>
+		</div>
+	</body>
+</html>
